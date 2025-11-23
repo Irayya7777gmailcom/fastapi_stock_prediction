@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+body {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364) !important;
+  color: #e0f7fa !important;
+  font-family: 'Poppins', sans-serif !important;
+  min-height: 100vh;
+}
+
+h1 {
+  color: #00e5ff !important;
+  text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+  font-weight: 700;
+}
+
+/* FAVORITE STOCKS = BLUE */
+.favorite-btn {
+  background: linear-gradient(45deg, #1e40af, #3b82f6) !important;
+  border: 2px solid #60a5fa !important;
+  color: white !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  height: 55px;
+}
+
+.favorite-btn:hover {
+  background: linear-gradient(45deg, #1d4ed8, #2563eb) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5);
+}
+
+/* ALL STOCKS = LIGHT GRAY */
+.all-stock-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  color: #e0f7fa !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  font-size: 13px;
+  height: 45px;
+}
+
+.all-stock-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: #60a5fa !important;
+  transform: translateY(-2px);
+}
+
+/* Modal */
+.modal-content {
+  background: rgba(15, 32, 39, 0.95) !important;
+  border: 2px solid #00e5ff !important;
+  border-radius: 20px !important;
+  backdrop-filter: blur(15px);
+}
+
+.section {
+  background: rgba(0, 229, 255, 0.15) !important;
+  color: #00e5ff !important;
+  border: 1.5px solid #00e5ff !important;
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.table {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e0f7fa !important;
+  font-size: 14px;
+}
+
+.table th {
+  background: rgba(0, 229, 255, 0.3) !important;
+  color: white !important;
+}
+
+.text-success { color: #00ff88 !important; }
+.text-danger { color: #ff3366 !important; }
+
+hr {
+  border-top: 2px dashed #00e5ff !important;
+  opacity: 0.5;
+}

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: options-dashboard-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../live_data:/app/live_data
+      - ../processed:/app/processed
+      - ../static:/app/static
+      - ../templates:/app/templates
+    environment:
+      - LIVE_DATA_DIR=/app/live_data
+      - PROCESSED_DIR=/app/processed
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=True
+    restart: unless-stopped
+    networks:
+      - options-network
+
+networks:
+  options-network:
+    driver: bridge

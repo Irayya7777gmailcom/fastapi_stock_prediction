@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-900 text-white">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OI Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), 
+                  url('/static/assets/bg.jpg') center/cover no-repeat fixed;
+      min-height: 100vh;
+    }
+    .glowing-border { box-shadow: 0 0 15px rgba(0, 255, 255, 0.6); }
+    .btn-glow { transition: all 0.3s; }
+    .btn-glow:hover { box-shadow: 0 0 20px rgba(0, 255, 255, 0.8); }
+    .scrollbar::-webkit-scrollbar { height: 6px; }
+    .scrollbar::-webkit-scrollbar-track { background: #1a1a1a; }
+    .scrollbar::-webkit-scrollbar-thumb { background: #00ffff; border-radius: 3px; }
+    .positive { color: #10b981 !important; }
+    .negative { color: #ef4444 !important; }
+    .new-strike { color: #fbbf24 !important; }
+    #settings-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #1a1a1a;
+      border: 2px solid #00ffff;
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(0,255,255,0.5);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <button id="settings-btn" class="fixed top-4 right-4 z-50 bg-cyan-600 p-3 rounded-full glowing-border btn-glow">
+    <i class="fas fa-cog text-white text-xl"></i>
+  </button>
+
+  <div id="settings-modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-cyan-400">Settings</h2>
+        <button id="close-modal" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+      <div class="mb-6">
+        <label class="block text-cyan-300 mb-2">Background Image</label>
+        <input type="file" id="bg-upload" accept="image/*" class="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700"/>
+        <p class="text-xs text-gray-400 mt-1">Or drop in <code>assets/bg.jpg</code></p>
+      </div>
+      <button id="save-settings" class="w-full py-3 bg-cyan-600 text-white rounded-full font-bold btn-glow">
+        Apply
+      </button>
+    </div>
+  </div>
+
+  <div class="container mx-auto p-6 max-w-7xl">
+    <!-- === NEW: Clock & Refresh Time === -->
+    <div id="clock-display" class="text-center text-cyan-300 text-sm mb-4"></div>
+
+    <h1 class="text-4xl font-bold text-center mb-8 text-cyan-400 glowing-border inline-block px-6 py-2 rounded-full">
+      Live OI Tracker
+    </h1>
+
+    <div class="bg-gray-800 bg-opacity-90 rounded-xl p-5 glowing-border mb-6">
+      <h2 class="text-xl font-semibold text-cyan-300 mb-3">All Stocks</h2>
+      <div id="all-stocks" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 max-h-96 overflow-y-auto scrollbar"></div>
+    </div>
+
+    <div class="bg-gray-800 bg-opacity-90 rounded-xl p-5 glowing-border mb-6">
+      <h2 class="text-xl font-semibold text-cyan-300 mb-3">Favorites</h2>
+      <div id="favorites" class="flex flex-wrap gap-2"></div>
+    </div>
+
+    <div id="summary" class="hidden bg-gray-800 bg-opacity-90 rounded-xl p-6 glowing-border">
+      <h2 id="summary-title" class="text-2xl font-bold text-cyan-300 mb-6"></h2>
+
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold text-yellow-400 mb-3">Historical Data (Latest Sheet)</h3>
+        <div class="overflow-x-auto scrollbar">
+          <table class="w-full text-sm text-left text-gray-300">
+            <thead class="bg-gray-700 text-cyan-400">
+              <tr>
+                <th class="px-3 py-2">Stock</th>
+                <th class="px-3 py-2">Category</th>
+                <th class="px-3 py-2">Strike</th>
+                <th class="px-3 py-2">Prev OI</th>
+                <th class="px-3 py-2">Latest OI</th>
+                <th class="px-3 py-2">Call OI Diff</th>
+                <th class="px-3 py-2">Add Strike</th>
+                <th class="px-3 py-2">Put OI Diff</th>
+                <th class="px-3 py-2">LTP</th>
+              </tr>
+            </thead>
+            <tbody id="hist-table" class="divide-y divide-gray-700"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-yellow-400 mb-3">Live Summary</h3>
+        <div class="overflow-x-auto scrollbar">
+          <table class="w-full text-sm text-left text-gray-300">
+            <thead class="bg-gray-700 text-cyan-400">
+              <tr>
+                <th class="px-3 py-2">Section</th>
+                <th class="px-3 py-2">Label</th>
+                <th class="px-3 py-2">Prev OI</th>
+                <th class="px-3 py-2">Strike</th>
+                <th class="px-3 py-2">Stock</th>
+                <th class="px-3 py-2">OI Diff</th>
+                <th class="px-3 py-2">Is New</th>
+              </tr>
+            </thead>
+            <tbody id="live-table" class="divide-y divide-gray-700"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const settingsBtn = document.getElementById('settings-btn');
+    const modal = document.getElementById('settings-modal');
+    const closeModal = document.getElementById('close-modal');
+    const bgUpload = document.getElementById('bg-upload');
+    const clockDisplay = document.getElementById('clock-display');
+
+    settingsBtn.onclick = () => modal.style.display = 'flex';
+    closeModal.onclick = () => modal.style.display = 'none';
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+    bgUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const url = ev.target.result;
+          document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('${url}')`;
+          localStorage.setItem('custom-bg', url);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    window.onload = () => {
+      const savedBg = localStorage.getItem('custom-bg');
+      if (savedBg) {
+        document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('${savedBg}')`;
+      }
+      updateClock(); // Initial
+      startClock();  // Keep ticking
+    };
+
+    const allStocksDiv = document.getElementById('all-stocks');
+    const favoritesDiv = document.getElementById('favorites');
+    const summaryDiv = document.getElementById('summary');
+    const summaryTitle = document.getElementById('summary-title');
+    const histTable = document.getElementById('hist-table');
+    const liveTable = document.getElementById('live-table');
+    let favorites = JSON.parse(localStorage.getItem('oi_favorites') || '[]');
+    let lastRefreshTime = null;
+
+    // === NEW: Clock & Refresh Time ===
+    function updateClock() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const refreshStr = lastRefreshTime 
+        ? `Last Updated: ${lastRefreshTime.toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+        : 'Loading...';
+
+      clockDisplay.innerHTML = `
+        <div class="font-medium">${dateStr} | ${timeStr}</div>
+        <div class="text-xs text-cyan-500 mt-1">${refreshStr} (Auto-refresh: 15s)</div>
+      `;
+    }
+
+    function startClock() {
+      updateClock();
+      setInterval(updateClock, 1000); // Tick every second
+    }
+
+    async function loadStocks() {
+      try {
+        const res = await fetch('/api/v1/stocks/');
+        const data = await res.json();
+        allStocksDiv.innerHTML = '';
+        data.all_stocks.forEach(stock => {
+          const btn = document.createElement('button');
+          btn.textContent = stock;
+          btn.className = `px-3 py-1 rounded-full text-xs font-medium transition-all btn-glow ${favorites.includes(stock) ? 'bg-cyan-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-cyan-700'}`;
+          btn.onclick = () => toggleFavorite(stock, btn);
+          allStocksDiv.appendChild(btn);
+        });
+        updateFavorites();
+
+        // Update refresh time
+        lastRefreshTime = new Date();
+        updateClock();
+      } catch (e) { console.error(e); }
+    }
+
+    function toggleFavorite(stock, btn) {
+      if (favorites.includes(stock)) {
+        favorites = favorites.filter(s => s !== stock);
+        btn.classList.remove('bg-cyan-600', 'text-white');
+        btn.classList.add('bg-gray-700', 'text-gray-300');
+      } else {
+        favorites.push(stock);
+        btn.classList.remove('bg-gray-700', 'text-gray-300');
+        btn.classList.add('bg-cyan-600', 'text-white');
+      }
+      localStorage.setItem('oi_favorites', JSON.stringify(favorites));
+      updateFavorites();
+    }
+
+    function updateFavorites() {
+      favoritesDiv.innerHTML = '';
+      favorites.forEach(stock => {
+        const btn = document.createElement('button');
+        btn.textContent = stock;
+        btn.className = 'px-4 py-2 rounded-full bg-cyan-600 text-white font-medium btn-glow mr-2 mb-2';
+        btn.onclick = () => loadSummary(stock);
+        favoritesDiv.appendChild(btn);
+      });
+    }
+
+    // === FIXED: Only show diff in correct column based on Category ===
+    async function loadSummary(stock) {
+      try {
+        const res = await fetch(`/api/v1/stocks/${stock}`);
+        const data = await res.json();
+
+        summaryTitle.textContent = `${stock} Summary`;
+        summaryDiv.classList.remove('hidden');
+
+        // HISTORICAL TABLE
+        histTable.innerHTML = '';
+        (data.historical || []).forEach(row => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-700';
+
+          const category = (row.Category || '').trim();
+
+          const cols = ['Stock','Category','Strike','Prev_OI','Latest_OI','Call_OI_Difference','Additional_Strike','Put_OI_Difference','LTP'];
+
+          cols.forEach((key) => {
+            const td = document.createElement('td');
+            td.className = 'px-3 py-2 border-r border-gray-600';
+
+            if (key === 'Call_OI_Difference' || key === 'Put_OI_Difference') {
+              const latest = parseFloat((row.Latest_OI || '').replace(/,/g, '')) || 0;
+              const prev   = parseFloat((row.Prev_OI   || '').replace(/,/g, '')) || 0;
+              const diff   = latest - prev;
+
+              const isCallResistance = category === 'Call Resistance';
+              const isPutSupport     = category === 'Put Support';
+
+              if ((key === 'Call_OI_Difference' && isCallResistance) ||
+                  (key === 'Put_OI_Difference' && isPutSupport)) {
+                if (diff !== 0) {
+                  const sign = diff > 0 ? '+' : '';
+                  td.textContent = sign + Math.abs(diff).toLocaleString('en-IN');
+                  td.className += diff > 0 ? ' positive' : ' negative';
+                }
+              } else {
+                td.textContent = '';
+              }
+            } else {
+              td.textContent = row[key] || '';
+            }
+
+            tr.appendChild(td);
+          });
+
+          histTable.appendChild(tr);
+        });
+
+        // LIVE TABLE – UNCHANGED
+        liveTable.innerHTML = '';
+        (data.live || []).forEach(row => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-700';
+
+          const secTd = document.createElement('td');
+          secTd.className = 'px-3 py-2 border-r border-gray-600 font-medium';
+          secTd.textContent = row.Section || '';
+          if (row.Section === 'Call Resistance') tr.classList.add('bg-red-900', 'bg-opacity-30');
+          if (row.Section === 'Put Support') tr.classList.add('bg-green-900', 'bg-opacity-30');
+          if (row.Is_NewStrike === 'Yes') tr.classList.add('bg-blue-900', 'bg-opacity-30');
+          tr.appendChild(secTd);
+
+          ['Label', 'Prev_OI', 'Strike', 'Stock'].forEach(key => {
+            const td = document.createElement('td');
+            td.className = 'px-3 py-2 border-r border-gray-600';
+            td.textContent = row[key] || '';
+            if (key === 'Prev_OI' && row.Is_NewStrike === 'Yes') td.classList.add('new-strike');
+            tr.appendChild(td);
+          });
+
+          const diffTd = document.createElement('td');
+          diffTd.className = 'px-3 py-2 border-r border-gray-600 font-bold';
+          const diff = row.OI_Diff;
+          if (diff && diff !== '') {
+            const num = parseFloat(diff.replace(/,/g, ''));
+            diffTd.textContent = (num > 0 ? '+' : '') + Math.abs(num).toLocaleString('en-IN');
+            diffTd.className += num > 0 ? ' positive' : ' negative';
+          }
+          tr.appendChild(diffTd);
+
+          const newTd = document.createElement('td');
+          newTd.className = 'px-3 py-2 border-r border-gray-600';
+          newTd.textContent = row.Is_NewStrike || '';
+          if (row.Is_NewStrike === 'Yes') newTd.classList.add('new-strike');
+          tr.appendChild(newTd);
+
+          liveTable.appendChild(tr);
+        });
+
+        // Update refresh time after summary load
+        lastRefreshTime = new Date();
+        updateClock();
+      } catch (e) { console.error(e); }
+    }
+
+    // Auto-refresh every 15 seconds
+    setInterval(loadStocks, 15000);
+    loadStocks(); // Initial load
+  </script>
+</body>
+</html>
