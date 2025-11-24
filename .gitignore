@@ -50,3 +50,9 @@ live_data/
 # OS
 .DS_Store
 Thumbs.db
+fastapi_architecture/ARCHITECTURE.md
+fastapi_architecture/WHY_6_SECOND_REFRESH.md
+fastapi_architecture/DATA_UPDATE_LOGIC.md
+fastapi_architecture/LIVE_DATA_FETCHING_LOGIC.md
+fastapi_architecture/TODO.md
+
