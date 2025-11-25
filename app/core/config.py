@@ -26,9 +26,9 @@ class Settings(BaseSettings):
     
     # Directories
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
-    LIVE_DATA_DIR: str = os.getenv("LIVE_DATA_DIR", str(BASE_DIR / "live_data"))
+    LIVE_DATA_DIR: str = os.getenv("LIVE_DATA_DIR", str(BASE_DIR / "live_data")).replace("/app", str(BASE_DIR))
     # PROCESSED_DIR: Deprecated - Using SQLite database instead of JSON files
-    PROCESSED_DIR: str = os.getenv("PROCESSED_DIR", str(BASE_DIR / "processed"))
+    PROCESSED_DIR: str = os.getenv("PROCESSED_DIR", str(BASE_DIR / "processed")).replace("/app", str(BASE_DIR))
     
     # Data Files
     HIST_FILE: str = "Historical.xlsx"

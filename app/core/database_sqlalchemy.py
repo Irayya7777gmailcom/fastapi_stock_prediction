@@ -18,6 +18,8 @@ class Database:
     
     def __init__(self):
         self.db_path = Path(settings.BASE_DIR) / "options_data.db"
+        # Ensure the directory exists
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.engine = create_engine(
             f"sqlite:///{self.db_path}",
             connect_args={"check_same_thread": False},  # Needed for SQLite

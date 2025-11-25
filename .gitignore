@@ -55,4 +55,4 @@ fastapi_architecture/WHY_6_SECOND_REFRESH.md
 fastapi_architecture/DATA_UPDATE_LOGIC.md
 fastapi_architecture/LIVE_DATA_FETCHING_LOGIC.md
 fastapi_architecture/TODO.md
-
+fastapi_architecture/options_data.db
